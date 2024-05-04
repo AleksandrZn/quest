@@ -50,7 +50,6 @@ display: flex;
 flex-direction: column;
 margin: 2.5%  auto;
 `
-
 const ChatHeader = styled.div`
 height: 62px;
 width: 100%;
@@ -87,7 +86,6 @@ background-color: white;
 const ChatSendBtn = styled.img`
 height: 48px;
 `
-
 const ChatMessageWrapper = styled.div`
 font-family: sans-serif;
 font-size: 14px;
@@ -120,7 +118,6 @@ ${props => props.second ? "padding-right: 16px" : "padding-left: 16px"};
 justify-content:${props => props.second ? "flex-end" : "flex-start"}; 
 align-items: center;
 `
-
 const HeaderImage = styled.img`
 border-radius: 50%;
 `
@@ -140,7 +137,6 @@ color:rgba(244, 109, 154, 0.7);
 display: flex;
 align-items: center;
 `
-
 const QuestCard = styled.div`
 position: relative;
 height: 70%;
@@ -164,7 +160,6 @@ line-height: 100%;
 font-size: 17px;
 font-weight: bold;
 `
-
 const BagsCard = styled.div`
 width: 90%;
 align-items: center;
@@ -177,7 +172,6 @@ font-size: 16px;
 display: flex;
 justify-content:space-evenly;
 `
-
 const Bag = styled.div`
 width: 64px;
 height: 62px;
@@ -245,9 +239,10 @@ top: ${props => props.top} ;
 left: ${props => props.left} ;
 transform: scale(${props => props.scaleA} , ${props => props.scaleB} );
 `
-const PECHAT = styled.p`
+const AnimaitionPrinting = styled.div`
 &{
   margin-left:5px;
+  margin-bottom: 5px;
   display:inline-block;
   font-family: monospace;
   font-size:12px;
@@ -263,22 +258,16 @@ color:rgba(244, 109, 154, 0.7);
 }
 `
 
+
 function App() {
   const bagLiters = [{ bag: blue, A: "И", B: "У" }, { bag: brown, A: "П", B: "С" }, { bag: green, A: "Н", B: "Р" }, { bag: yellow, A: "Е", B: "Т" }]
   const AnswerLeters = [{ leter: "", color: "#A07D89" }, { leter: "Р", color: "#6EF57B" }, { leter: "", color: "#6E92F5" }, { leter: "Н", color: "#6EF57B" }, { leter: "", color: "#F5CF6E" }, { leter: "Е", color: "#F5CF6E" }, { leter: "", color: "#6EF57B" }]
   const ResultAnswerLeters = ["П", "Р", "И", "Н", "Т", "Е", "Р"]
   const [value, setValue] = useState(["", "Р", "", "Н", "", "Е", ""])
+  const [date, setDate] = useState()
 
   const [pageNumber, setPageNumber] = useState("1")
   const [animation, setAnimation] = useState(true)
-  const [visible1, setVisible1] = useState(false)
-  const [visible2, setVisible2] = useState(false)
-  const [visible3, setVisible3] = useState(false)
-  const [visible33, setVisible33] = useState(false)
-  const [visible44, setVisible44] = useState(false)
-  const [date1, setDate1] = useState(null)
-  const [date2, setDate2] = useState(null)
-  const [date3, setDate3] = useState(null)
   const [inp, setInp] = useState("")
 
   const time = () => {
@@ -286,89 +275,17 @@ function App() {
     const currentTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     return currentTime
   }
+
+  const setTimer = (func, ms) => {
+    const timerId = setTimeout(() => {
+      func();
+    }, ms)
+    return () => clearTimeout(timerId);
+  }
+
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setPageNumber("2")
-    }, 3000);
-    return () => clearTimeout(timer);
+    setTimer(() => setPageNumber("2"), 1000)
   }, []);
-
-  useEffect(() => {
-    if (pageNumber === "2" || pageNumber === "4") {
-      const timer = setTimeout(() => {
-        setAnimation(false)
-        setVisible1(true)
-        setDate1(time())
-      }, 3000);
-
-      return () => clearTimeout(timer);
-    }
-    if (pageNumber === "2" && visible3) {
-      const timer = setTimeout(() => {
-        setAnimation(true)
-
-      }, 3000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [pageNumber]);
-  const ref = useRef(null)
-
-
-
-
-  useEffect(() => {
-    if (visible1 === true && animation === false && visible2 === false ) {
-      const timer = setTimeout(() => {
-        setVisible2(true)
-        setAnimation(false)
-        setDate2(time())
-      }, 3000);
-      setAnimation(true)
-      return () => clearTimeout(timer);
-    }
-  }, [visible1]);
-  useEffect(() => {
-    if (visible3) {
-      const timer = setTimeout(() => {
-        setPageNumber("3")
-      }, 6000);
-      return () => clearTimeout(timer);
-    }
-  }, [visible3]);
-  useEffect(() => {
-    if (visible3 === true) {
-      const timer = setTimeout(() => {
-        setPageNumber(1)
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [visible3]);
-
-  useEffect(() => {
-    if (visible33 === true) {
-      const timer = setTimeout(() => {
-        setAnimation(false)
-        setVisible44(true)
-      }, 3000); setAnimation(true)
-      return () => clearTimeout(timer);
-    }
-  }, [visible33]);
-
-  useEffect(() => {
-    if (JSON.stringify(value) === JSON.stringify(ResultAnswerLeters)) {
-      const timer = setTimeout(() => {
-        setPageNumber("4")
-      }, 3000);
-      setPageNumber("1")
-      setVisible1(false)
-      setVisible2(false)
-      setVisible3(false)
-      return () => clearTimeout(timer);
-    }
-
-  }, [value]);
-
 
   const BageComponent = (bag, A, B) => {
     return <Bag bag={bag}>
@@ -379,10 +296,51 @@ function App() {
     </Bag>
   }
 
+  const chatFirst = [
+    { text: "Дорогая, поздравляю тебя с Международным женским днём 8 Марта &#128139; &#128139; &#128139; Из всех женщин на Земле ты самая близкая и родная, для меня ты самая красивая, умная, славная &#128525; Я хочу пожелать тебе сегодня, чтобы Весна всегда цвела в твоём сердце, каждое утро начиналось с улыбки, а дни были полны радости и вдохновения &#128540; Хочу, чтобы ты была счастлива и этой весной, и следующей, и ещё долгие-долгие годы рядом со мной. С праздником, моя хорошая, люблю тебя &#127801; &#10084;", from: "script" },
+    { text: "Готова к квесту с призами?", from: "script" },
+    { text: "Конечно любимый 😍", from: "user" }
+  ]
 
+  const chatSecond = [
+    { text: "Моя умничка, ты справилась! Остается только отправить мне кодовое слово и карта твоя.", from: "script" },
+    { text: "ЛЮБЛЮ", from: "user" },
+    { image: Map, from: "script" }
 
+  ]
+
+  const [chatValues, setChatValues] = useState([])
+
+  function doChatting(chatFirst) {
+    new Promise((resolve) => {
+      if (chatValues.length < chatFirst.length && (!type(chatFirst[chatValues.length]?.from) || chatValues.length == 0)) {
+        setTimer(() => {
+          setChatValues(() => [...chatValues, { ...chatFirst[chatValues.length], time: time(), }])
+          setAnimation(false)
+        }, 3000);
+      } resolve(chatValues.length < chatFirst.length && (!type(chatFirst[chatValues.length]?.from) || chatValues.length == 0))
+    }).then((result) => setAnimation(result))
+  }
+
+  useEffect(() => {
+    pageNumber === "2" && doChatting(chatFirst);
+    pageNumber === "4" && doChatting(chatSecond)
+  }, [pageNumber, chatValues])
+
+  useEffect(() => {
+    if (value.toString() == ResultAnswerLeters.toString()) {
+      setPageNumber('1')
+      setTimer(() => { setPageNumber('4') }, 3000)
+    }
+  }, [value])
 
   const load = " \"Твой Сашка\" печатает сообщение..."
+
+  function type(from) {
+    console.log(from)
+    return from === "user"
+  }
+
   return (
     <Container>
       <Content>
@@ -404,43 +362,37 @@ function App() {
               </HeaderText>
             </ChatHeader>
             <div style={{ flexGrow: "1", overflow: "auto" }}>
-              {visible1 && <ChatMessageWrapper>
-                <ChatMessage >
-                  <ChatMessageText >Дорогая, поздравляю тебя с Международным женским днём 8 Марта &#128139; &#128139; &#128139; Из всех женщин на Земле ты самая близкая и родная, для меня ты самая красивая, умная, славная &#128525; Я хочу пожелать тебе сегодня, чтобы Весна всегда цвела в твоём сердце, каждое утро начиналось с улыбки, а дни были полны радости и вдохновения &#128540; Хочу, чтобы ты была счастлива и этой весной, и следующей, и ещё долгие-долгие годы рядом со мной. С праздником, моя хорошая, люблю тебя &#127801; &#10084;
-
-                  </ChatMessageText>
-
-                </ChatMessage>
-                <ChatMessageTime >{date1}</ChatMessageTime>
-              </ChatMessageWrapper>}
-              {visible2 && <ChatMessageWrapper>
-                <ChatMessage >
-                  <ChatMessageText >Готова к квесту с призами?
-
-                  </ChatMessageText>
-
-                </ChatMessage>
-                <ChatMessageTime >{date2}</ChatMessageTime>
-              </ChatMessageWrapper>}
-              {visible3 && <ChatMessageWrapper second>
-                <ChatMessage second>
-                  <ChatMessageText second>Конечно любимый 😍</ChatMessageText>
-                </ChatMessage>
-                <ChatMessageTime second>{date3}<img src={done} alt="done" style={{ width: "13px", height: "8px", padding: "3px" }} /></ChatMessageTime>
-              </ChatMessageWrapper>}
+              {chatValues.map((elem, i) => {
+                return (<ChatMessageWrapper second={type(elem?.from)} key={elem?.from + i}>
+                  <ChatMessage second={type(elem?.from)}>
+                    <ChatMessageText second={type(elem?.from)}>
+                      {String(elem?.text)}
+                    </ChatMessageText>
+                  </ChatMessage>
+                  <ChatMessageTime second={type(elem?.from)}>{elem?.time}</ChatMessageTime>
+                </ChatMessageWrapper>)
+              })
+              }
             </div>
-            <div>{animation && <PECHAT>{load}</PECHAT>}</div>
+            <div>{animation && <AnimaitionPrinting>{load}</AnimaitionPrinting>}</div>
 
             <ChatSend>
               <ChatSendWrapperInput>
                 <ChatSendInput />
               </ChatSendWrapperInput>
               <ChatSendBtn src={send} alt="send" onClick={() => {
-                if (visible2) {
-                  setVisible3(true)
-                  setDate3(time())
+                if (chatValues.length === 2) {
+                  new Promise((resolve) => {
+                    setChatValues(() => [...chatValues, { ...chatFirst[chatValues.length], time: time(), }])
+                    setTimer(() => {
+                      setPageNumber('1')
+                      resolve()
+                    }, 2000);
+                  }).then(() => setTimer(() => {
+                    setPageNumber("3")
+                    setChatValues([])
+                  }, 3000))
                 }
-
               }} />
             </ChatSend>
           </Chat>}
@@ -480,44 +432,27 @@ function App() {
               </HeaderText>
             </ChatHeader>
             <div style={{ flexGrow: "1", overflow: "auto" }}>
-              {visible1 && <ChatMessageWrapper>
-                <ChatMessage >
-                  <ChatMessageText >
-                    Моя умничка, ты справилась! Остается только отправить мне кодовое слово и карта твоя.
-                  </ChatMessageText>
-                </ChatMessage>
-                <ChatMessageTime >{date1}</ChatMessageTime>
-              </ChatMessageWrapper>}
-
-              {visible33 && <ChatMessageWrapper second>
-                <ChatMessage second>
-                  <ChatMessageText second>ЛЮБЛЮ</ChatMessageText>
-                </ChatMessage>
-                <ChatMessageTime second>{date3}<img src={done} alt="done" style={{ width: "13px", height: "8px", padding: "3px" }} /></ChatMessageTime>
-              </ChatMessageWrapper>}
-              {visible44 && <ChatMessageWrapper>
-                <ChatMessage >
-                  <ChatMessageText >
-                    <img src={Map} alt={"Map"} />
-                  </ChatMessageText>
-
-                </ChatMessage>
-                <ChatMessageTime >{date2}</ChatMessageTime>
-              </ChatMessageWrapper>}
+              {chatValues.map((elem, i) => {
+                return (<ChatMessageWrapper second={type(elem?.from)} key={elem?.from + i}>
+                  <ChatMessage second={type(elem?.from)}>
+                    <ChatMessageText second={type(elem?.from)}>
+                      {elem?.text && String(elem?.text) ||
+                        elem?.image && < img src={elem?.image} alt={"Map"} />}
+                    </ChatMessageText>
+                  </ChatMessage>
+                  <ChatMessageTime second={type(elem?.from)}>{elem?.time}</ChatMessageTime>
+                </ChatMessageWrapper>)
+              })}
             </div>
-            <div>{animation && <PECHAT>{load}</PECHAT>}</div>
-
+            {animation && <AnimaitionPrinting>{load}</AnimaitionPrinting>}
             <ChatSend>
               <ChatSendWrapperInput>
-                <ChatSendInput onChange={(e) => setInp(e.target.value.toUpperCase())} disabled={visible44} value={inp} />
+                <ChatSendInput onChange={(e) => setInp(e.target.value.toUpperCase())} disabled={false} value={inp} />
               </ChatSendWrapperInput>
               <ChatSendBtn src={send} alt="send" onClick={() => {
-                if (inp === "ЛЮБЛЮ") {
-                  setInp("")
-                  setVisible33(true)
-                  setDate3(time())
+                if (chatValues.length === 1 && inp === "ЛЮБЛЮ") {
+                  setChatValues(() => [...chatValues, { ...chatSecond[chatValues.length], time: time(), }])
                 }
-
               }} />
             </ChatSend>
           </Chat>}
