@@ -86,38 +86,7 @@ background-color: white;
 const ChatSendBtn = styled.img`
 height: 48px;
 `
-const ChatMessageWrapper = styled.div`
-font-family: sans-serif;
-font-size: 14px;
-line-height: 150%;
-width:80%; 
-padding-top: 18px;
-margin-left:${props => props.second ? "auto" : "none"};
-`
-const ChatMessage = styled.div`
-background-color:${props => props.second ? "#F46D9A" : "#F7CAC9"}; 
-padding: 14px 16px 18px 16px;
-border-radius:${props => props.second ? "15px 15px  0 15px" : "15px 15px 15px 0"}; 
 
-`
-const ChatMessageText = styled.div`
-color:${props => props.second ? "#F2F2F2" : "#F46D9A"};
-& img{
-width: 100%;
-height: 100%;
-}
-`
-const ChatMessageTime = styled.div`
-display: flex;
-
-font-family: sans-serif;
-font-size: 12px;
-line-height: 150%;
-color:rgba(244, 109, 154, 0.7);
-${props => props.second ? "padding-right: 16px" : "padding-left: 16px"};
-justify-content:${props => props.second ? "flex-end" : "flex-start"}; 
-align-items: center;
-`
 const HeaderImage = styled.img`
 border-radius: 50%;
 `
@@ -125,7 +94,8 @@ const HeaderText = styled.div`
 display: flex;
 flex-direction: column;
 padding-left: 15px;
-justify-content: space-evenly;`
+justify-content: space-evenly;
+`
 const HeaderTextName = styled.div`
 color: #F46D9A;
 font-size: 20px;
@@ -257,16 +227,73 @@ color:rgba(244, 109, 154, 0.7);
   }
 }
 `
+const TYPES_MESSAGE = {
+  SCRIPT: "script",
+  USER: "user",
+}
 
+
+const BageComponent = (bag, A, B) => {
+  return <Bag bag={bag}>
+    <BagItemWrapper>
+      <BagItem>{A}</BagItem>
+      <BagItem>{B}</BagItem>
+    </BagItemWrapper>
+  </Bag>
+}
+const MessageWrapper = styled.div`
+font-family: sans-serif;
+font-size: 14px;
+line-height: 150%;
+width:80%; 
+padding-top: 18px;
+margin-left:${props => props.typeMessage === TYPES_MESSAGE.USER ? "auto" : "none"};
+`
+const Message = styled.div`
+background-color:${props => props.typeMessage === TYPES_MESSAGE.USER ? "#F46D9A" : "#F7CAC9"}; 
+padding: 14px 16px 18px 16px;
+border-radius:${props => props.typeMessage === TYPES_MESSAGE.USER ? "15px 15px  0 15px" : "15px 15px 15px 0"}; 
+
+`
+const MessageContent = styled.div`
+color:${props => props.typeMessage === TYPES_MESSAGE.USER ? "#F2F2F2" : "#F46D9A"};
+& img{
+width: 100%;
+height: 100%;
+}
+`
+const MessageTime = styled.div`
+display: flex;
+font-family: sans-serif;
+font-size: 12px;
+line-height: 150%;
+color:rgba(244, 109, 154, 0.7);
+${props => props.second ? "padding-right: 16px" : "padding-left: 16px"};
+justify-content:${props => props.typeMessage === TYPES_MESSAGE.SCRIPT ? "flex-end" : "flex-start"}; 
+align-items: center;
+`
+const MessageComponent = ({ elem }) => {
+
+  return <MessageWrapper typeMessage={elem?.from}>
+    <Message typeMessage={elem?.from}>
+      <MessageContent typeMessage={elem?.from}>
+        {elem?.text}
+        {elem.image && < img src={elem?.image} alt={"Map"} />}
+      </MessageContent>
+    </Message>
+    <MessageTime typeMessage={elem?.from}>{elem?.time}</MessageTime>
+  </MessageWrapper>
+
+}
 
 function App() {
   const bagLiters = [{ bag: blue, A: "И", B: "У" }, { bag: brown, A: "П", B: "С" }, { bag: green, A: "Н", B: "Р" }, { bag: yellow, A: "Е", B: "Т" }]
   const AnswerLeters = [{ leter: "", color: "#A07D89" }, { leter: "Р", color: "#6EF57B" }, { leter: "", color: "#6E92F5" }, { leter: "Н", color: "#6EF57B" }, { leter: "", color: "#F5CF6E" }, { leter: "Е", color: "#F5CF6E" }, { leter: "", color: "#6EF57B" }]
   const ResultAnswerLeters = ["П", "Р", "И", "Н", "Т", "Е", "Р"]
   const [value, setValue] = useState(["", "Р", "", "Н", "", "Е", ""])
-  const [date, setDate] = useState()
+  const [next, setNext] = useState(false)
 
-  const [pageNumber, setPageNumber] = useState("1")
+  const [pageNumber, setPageNumber] = useState("Logo")
   const [animation, setAnimation] = useState(true)
   const [inp, setInp] = useState("")
 
@@ -284,17 +311,9 @@ function App() {
   }
 
   useEffect(() => {
-    setTimer(() => setPageNumber("2"), 1000)
+    setTimer(() => setPageNumber("Chat"), 1000)
   }, []);
 
-  const BageComponent = (bag, A, B) => {
-    return <Bag bag={bag}>
-      <BagItemWrapper>
-        <BagItem>{A}</BagItem>
-        <BagItem>{B}</BagItem>
-      </BagItemWrapper>
-    </Bag>
-  }
 
   const chatFirst = [
     { text: "Дорогая, поздравляю тебя с Международным женским днём 8 Марта &#128139; &#128139; &#128139; Из всех женщин на Земле ты самая близкая и родная, для меня ты самая красивая, умная, славная &#128525; Я хочу пожелать тебе сегодня, чтобы Весна всегда цвела в твоём сердце, каждое утро начиналось с улыбки, а дни были полны радости и вдохновения &#128540; Хочу, чтобы ты была счастлива и этой весной, и следующей, и ещё долгие-долгие годы рядом со мной. С праздником, моя хорошая, люблю тебя &#127801; &#10084;", from: "script" },
@@ -311,43 +330,46 @@ function App() {
 
   const [chatValues, setChatValues] = useState([])
 
-  function doChatting(chatFirst) {
+  function doChatting(messages) {
     new Promise((resolve) => {
-      if (chatValues.length < chatFirst.length && (!type(chatFirst[chatValues.length]?.from) || chatValues.length == 0)) {
+      if (chatValues.length < messages.length && (messages[chatValues.length]?.from === TYPES_MESSAGE.SCRIPT || chatValues.length == 0)) {
         setTimer(() => {
-          setChatValues(() => [...chatValues, { ...chatFirst[chatValues.length], time: time(), }])
+          setChatValues(() => [...chatValues, { ...messages[chatValues.length], time: time(), }])
           setAnimation(false)
         }, 3000);
-      } resolve(chatValues.length < chatFirst.length && (!type(chatFirst[chatValues.length]?.from) || chatValues.length == 0))
+      } resolve(chatValues.length < messages.length && (messages[chatValues.length]?.from === TYPES_MESSAGE.SCRIPT || chatValues.length == 0))
     }).then((result) => setAnimation(result))
   }
 
   useEffect(() => {
-    pageNumber === "2" && doChatting(chatFirst);
-    pageNumber === "4" && doChatting(chatSecond)
+    if (pageNumber === "Chat") {
+      if (next) {
+        doChatting(chatSecond)
+      } else {
+        doChatting(chatFirst);
+      }
+
+    }
   }, [pageNumber, chatValues])
 
   useEffect(() => {
     if (value.toString() == ResultAnswerLeters.toString()) {
-      setPageNumber('1')
-      setTimer(() => { setPageNumber('4') }, 3000)
+      setPageNumber('Logo')
+      setTimer(() => { setPageNumber('Chat') }, 3000)
     }
   }, [value])
 
   const load = " \"Твой Сашка\" печатает сообщение..."
 
-  function type(from) {
-    console.log(from)
-    return from === "user"
-  }
+
 
   return (
     <Container>
       <Content>
-        {pageNumber == "1" && < Logo >
+        {pageNumber == "Logo" && < Logo >
           <img src={logo} alt={"Logo"} />
         </Logo>}
-        {pageNumber == "2" &&
+        {pageNumber == "Chat" &&
           < Chat >
             <ChatHeader>
               <HeaderImage src={avatar} alt="Avatar" />
@@ -363,14 +385,7 @@ function App() {
             </ChatHeader>
             <div style={{ flexGrow: "1", overflow: "auto" }}>
               {chatValues.map((elem, i) => {
-                return (<ChatMessageWrapper second={type(elem?.from)} key={elem?.from + i}>
-                  <ChatMessage second={type(elem?.from)}>
-                    <ChatMessageText second={type(elem?.from)}>
-                      {String(elem?.text)}
-                    </ChatMessageText>
-                  </ChatMessage>
-                  <ChatMessageTime second={type(elem?.from)}>{elem?.time}</ChatMessageTime>
-                </ChatMessageWrapper>)
+                return <MessageComponent elem={elem} key={elem?.from + i} />
               })
               }
             </div>
@@ -378,25 +393,30 @@ function App() {
 
             <ChatSend>
               <ChatSendWrapperInput>
-                <ChatSendInput />
+                <ChatSendInput onChange={(e) => setInp(e.target.value.toUpperCase())} disabled={false} value={inp} />
               </ChatSendWrapperInput>
               <ChatSendBtn src={send} alt="send" onClick={() => {
                 if (chatValues.length === 2) {
                   new Promise((resolve) => {
                     setChatValues(() => [...chatValues, { ...chatFirst[chatValues.length], time: time(), }])
                     setTimer(() => {
-                      setPageNumber('1')
+                      setPageNumber('Logo')
                       resolve()
                     }, 2000);
                   }).then(() => setTimer(() => {
-                    setPageNumber("3")
+                    setPageNumber("Game")
                     setChatValues([])
+                    setNext(true)
                   }, 3000))
+                }
+                if (chatValues.length === 1 && inp === "ЛЮБЛЮ") {
+                  setInp("")
+                  setChatValues(() => [...chatValues, { ...chatSecond[chatValues.length], time: time(), }])
                 }
               }} />
             </ChatSend>
           </Chat>}
-        {pageNumber === "3" &&
+        {pageNumber === "Game" &&
           <QuestCard>
             <CardText>
               "В женской сумочке, как известно, сложно что-либо найти. Вот и сейчас в каждой из сумочек затерялось по две буквы. Зная какие две буквы лежат в каждой сумке, постарайся расшифровать слово. Некоторые буквы уже заняли свои места."
@@ -414,48 +434,6 @@ function App() {
             <Decore src={B} top="-18%" left="0%" scaleA={0.5} scaleB={0.5} />
             <Decore src={B} top="96%" left="0%" scaleA={1} scaleB={1} />
           </QuestCard>}
-
-
-
-        {pageNumber == "4" &&
-          < Chat >
-            <ChatHeader>
-              <HeaderImage src={avatar} alt="Avatar" />
-              <HeaderText>
-                <HeaderTextName>
-                  Твой Сашка
-                </HeaderTextName>
-                <HeaderTextStatus>
-                  <p style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#0ACF83" }} />
-                  Online
-                </HeaderTextStatus>
-              </HeaderText>
-            </ChatHeader>
-            <div style={{ flexGrow: "1", overflow: "auto" }}>
-              {chatValues.map((elem, i) => {
-                return (<ChatMessageWrapper second={type(elem?.from)} key={elem?.from + i}>
-                  <ChatMessage second={type(elem?.from)}>
-                    <ChatMessageText second={type(elem?.from)}>
-                      {elem?.text && String(elem?.text) ||
-                        elem?.image && < img src={elem?.image} alt={"Map"} />}
-                    </ChatMessageText>
-                  </ChatMessage>
-                  <ChatMessageTime second={type(elem?.from)}>{elem?.time}</ChatMessageTime>
-                </ChatMessageWrapper>)
-              })}
-            </div>
-            {animation && <AnimaitionPrinting>{load}</AnimaitionPrinting>}
-            <ChatSend>
-              <ChatSendWrapperInput>
-                <ChatSendInput onChange={(e) => setInp(e.target.value.toUpperCase())} disabled={false} value={inp} />
-              </ChatSendWrapperInput>
-              <ChatSendBtn src={send} alt="send" onClick={() => {
-                if (chatValues.length === 1 && inp === "ЛЮБЛЮ") {
-                  setChatValues(() => [...chatValues, { ...chatSecond[chatValues.length], time: time(), }])
-                }
-              }} />
-            </ChatSend>
-          </Chat>}
       </Content>
     </Container >
 
