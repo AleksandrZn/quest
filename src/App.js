@@ -1,7 +1,6 @@
 import styled from "styled-components";
 import logo from './image/logo.svg'
 import avatar from './image/Avatar.svg'
-import done from './image/Union.png'
 import send from './image/Send.svg'
 import blue from './image/Blue.png'
 import brown from './image/Brown.png'
@@ -10,7 +9,7 @@ import yellow from './image/Yellow.png'
 import B from './image/BlackB.svg'
 import A from './image/WhiteB.svg'
 import Map from "./image/Map.png"
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 const Container = styled.div`
   background-color: #FEF6FF;
@@ -166,6 +165,14 @@ line-height: 0%;
 font-family: sans-serif;
 font-weight: bold;
 `
+const BageComponent = (bag, A, B) => {
+  return <Bag bag={bag}>
+    <BagItemWrapper>
+      <BagItem>{A}</BagItem>
+      <BagItem>{B}</BagItem>
+    </BagItemWrapper>
+  </Bag>
+}
 const AnswerWrapper = styled.div`
 display: flex;
 justify-content:space-evenly;
@@ -227,19 +234,10 @@ color:rgba(244, 109, 154, 0.7);
   }
 }
 `
+
 const TYPES_MESSAGE = {
   SCRIPT: "script",
   USER: "user",
-}
-
-
-const BageComponent = (bag, A, B) => {
-  return <Bag bag={bag}>
-    <BagItemWrapper>
-      <BagItem>{A}</BagItem>
-      <BagItem>{B}</BagItem>
-    </BagItemWrapper>
-  </Bag>
 }
 const MessageWrapper = styled.div`
 font-family: sans-serif;
@@ -247,55 +245,78 @@ font-size: 14px;
 line-height: 150%;
 width:80%; 
 padding-top: 18px;
-margin-left:${props => props.typeMessage === TYPES_MESSAGE.USER ? "auto" : "none"};
+margin-left:${({ $typemessage }) => $typemessage === TYPES_MESSAGE.USER ? "auto" : "none"};
 `
 const Message = styled.div`
-background-color:${props => props.typeMessage === TYPES_MESSAGE.USER ? "#F46D9A" : "#F7CAC9"}; 
+background-color:${({ $typemessage }) => $typemessage === TYPES_MESSAGE.USER ? "#F46D9A" : "#F7CAC9"};
 padding: 14px 16px 18px 16px;
-border-radius:${props => props.typeMessage === TYPES_MESSAGE.USER ? "15px 15px  0 15px" : "15px 15px 15px 0"}; 
+border-radius:${({ $typemessage }) => $typemessage === TYPES_MESSAGE.USER ? "15px 15px  0 15px" : "15px 15px 15px 0"};
 
 `
 const MessageContent = styled.div`
-color:${props => props.typeMessage === TYPES_MESSAGE.USER ? "#F2F2F2" : "#F46D9A"};
+color:${({ $typemessage }) => $typemessage === TYPES_MESSAGE.USER ? "#F2F2F2" : "#F46D9A"};
 & img{
-width: 100%;
-height: 100%;
+  width: 100%;
+  height: 100%;
 }
 `
 const MessageTime = styled.div`
 display: flex;
-font-family: sans-serif;
+font-family: sans - serif;
 font-size: 12px;
-line-height: 150%;
-color:rgba(244, 109, 154, 0.7);
-${props => props.second ? "padding-right: 16px" : "padding-left: 16px"};
-justify-content:${props => props.typeMessage === TYPES_MESSAGE.SCRIPT ? "flex-end" : "flex-start"}; 
+line-height: 150 %;
+color: rgba(244, 109, 154, 0.7);
+${({ $typemessage }) => $typemessage === TYPES_MESSAGE.SCRIPT ? "padding-right: 16px" : "padding-left: 16px"};
+justify-content:${({ $typemessage }) => $typemessage === TYPES_MESSAGE.SCRIPT ? "flex-end" : "flex-start"};
 align-items: center;
 `
 const MessageComponent = ({ elem }) => {
-
-  return <MessageWrapper typeMessage={elem?.from}>
-    <Message typeMessage={elem?.from}>
-      <MessageContent typeMessage={elem?.from}>
+  return <MessageWrapper $typemessage={elem?.from}>
+    <Message $typemessage={elem?.from}>
+      <MessageContent $typemessage={elem?.from}>
         {elem?.text}
         {elem.image && < img src={elem?.image} alt={"Map"} />}
       </MessageContent>
     </Message>
-    <MessageTime typeMessage={elem?.from}>{elem?.time}</MessageTime>
+    <MessageTime $typemessage={elem?.from}>{elem?.time}</MessageTime>
   </MessageWrapper>
 
 }
 
 function App() {
-  const bagLiters = [{ bag: blue, A: "И", B: "У" }, { bag: brown, A: "П", B: "С" }, { bag: green, A: "Н", B: "Р" }, { bag: yellow, A: "Е", B: "Т" }]
-  const AnswerLeters = [{ leter: "", color: "#A07D89" }, { leter: "Р", color: "#6EF57B" }, { leter: "", color: "#6E92F5" }, { leter: "Н", color: "#6EF57B" }, { leter: "", color: "#F5CF6E" }, { leter: "Е", color: "#F5CF6E" }, { leter: "", color: "#6EF57B" }]
-  const ResultAnswerLeters = ["П", "Р", "И", "Н", "Т", "Е", "Р"]
   const [value, setValue] = useState(["", "Р", "", "Н", "", "Е", ""])
   const [next, setNext] = useState(false)
-
   const [pageNumber, setPageNumber] = useState("Logo")
   const [animation, setAnimation] = useState(true)
   const [inp, setInp] = useState("")
+  const [chatValues, setChatValues] = useState([])
+
+  const bagLiters = [{ bag: blue, A: "И", B: "У" }, { bag: brown, A: "П", B: "С" }, { bag: green, A: "Н", B: "Р" }, { bag: yellow, A: "Е", B: "Т" }]
+  const AnswerLeters = [{ leter: "", color: "#A07D89" }, { leter: "Р", color: "#6EF57B" }, { leter: "", color: "#6E92F5" }, { leter: "Н", color: "#6EF57B" }, { leter: "", color: "#F5CF6E" }, { leter: "Е", color: "#F5CF6E" }, { leter: "", color: "#6EF57B" }]
+  const ResultAnswerLeters = ["П", "Р", "И", "Н", "Т", "Е", "Р"]
+  const load = " \"Твой Сашка\" печатает сообщение..."
+  const chatFirst = [
+    { text: "Дорогая, поздравляю тебя с Международным женским днём 8 Марта 💋 💋 💋 Из всех женщин на Земле ты самая близкая и родная, для меня ты самая красивая, умная, славная 😍 Я хочу пожелать тебе сегодня, чтобы Весна всегда цвела в твоём сердце, каждое утро начиналось с улыбки, а дни были полны радости и вдохновения 😜 Хочу, чтобы ты была счастлива и этой весной, и следующей, и ещё долгие-долгие годы рядом со мной. С праздником, моя хорошая, люблю тебя 🌹 ❤", from: "script" },
+    { text: "Готова к квесту с призами?", from: "script" },
+    { text: "Конечно любимый 😍", from: "user" }
+  ]
+  const chatSecond = [
+    { text: "Моя умничка, ты справилась! Остается только отправить мне кодовое слово и карта твоя.", from: "script" },
+    { text: "ЛЮБЛЮ", from: "user" },
+    { image: Map, from: "script" }
+
+  ]
+
+  const doChatting = (messages) => {
+    new Promise((resolve) => {
+      if (chatValues.length < messages.length && (messages[chatValues.length]?.from === TYPES_MESSAGE.SCRIPT || chatValues.length === 0)) {
+        setTimer(() => {
+          setChatValues(() => [...chatValues, { ...messages[chatValues.length], time: time(), }])
+          setAnimation(false)
+        }, 3000);
+      } resolve(chatValues.length < messages.length && (messages[chatValues.length]?.from === TYPES_MESSAGE.SCRIPT || chatValues.length === 0))
+    }).then((result) => setAnimation(result))
+  }
 
   const time = () => {
     const date = new Date();
@@ -314,33 +335,6 @@ function App() {
     setTimer(() => setPageNumber("Chat"), 1000)
   }, []);
 
-
-  const chatFirst = [
-    { text: "Дорогая, поздравляю тебя с Международным женским днём 8 Марта &#128139; &#128139; &#128139; Из всех женщин на Земле ты самая близкая и родная, для меня ты самая красивая, умная, славная &#128525; Я хочу пожелать тебе сегодня, чтобы Весна всегда цвела в твоём сердце, каждое утро начиналось с улыбки, а дни были полны радости и вдохновения &#128540; Хочу, чтобы ты была счастлива и этой весной, и следующей, и ещё долгие-долгие годы рядом со мной. С праздником, моя хорошая, люблю тебя &#127801; &#10084;", from: "script" },
-    { text: "Готова к квесту с призами?", from: "script" },
-    { text: "Конечно любимый 😍", from: "user" }
-  ]
-
-  const chatSecond = [
-    { text: "Моя умничка, ты справилась! Остается только отправить мне кодовое слово и карта твоя.", from: "script" },
-    { text: "ЛЮБЛЮ", from: "user" },
-    { image: Map, from: "script" }
-
-  ]
-
-  const [chatValues, setChatValues] = useState([])
-
-  function doChatting(messages) {
-    new Promise((resolve) => {
-      if (chatValues.length < messages.length && (messages[chatValues.length]?.from === TYPES_MESSAGE.SCRIPT || chatValues.length == 0)) {
-        setTimer(() => {
-          setChatValues(() => [...chatValues, { ...messages[chatValues.length], time: time(), }])
-          setAnimation(false)
-        }, 3000);
-      } resolve(chatValues.length < messages.length && (messages[chatValues.length]?.from === TYPES_MESSAGE.SCRIPT || chatValues.length == 0))
-    }).then((result) => setAnimation(result))
-  }
-
   useEffect(() => {
     if (pageNumber === "Chat") {
       if (next) {
@@ -348,34 +342,50 @@ function App() {
       } else {
         doChatting(chatFirst);
       }
-
     }
   }, [pageNumber, chatValues])
 
   useEffect(() => {
-    if (value.toString() == ResultAnswerLeters.toString()) {
+    if (value.toString() === ResultAnswerLeters.toString()) {
       setPageNumber('Logo')
       setTimer(() => { setPageNumber('Chat') }, 3000)
     }
   }, [value])
 
-  const load = " \"Твой Сашка\" печатает сообщение..."
 
-
+  const handleClick = (messages) => {
+    if (messages.length === 2) {
+      new Promise((resolve) => {
+        setChatValues(() => [...messages, { ...chatFirst[messages.length], time: time(), }])
+        setTimer(() => {
+          setPageNumber('Logo')
+          resolve()
+        }, 2000);
+      }).then(() => setTimer(() => {
+        setPageNumber("Game")
+        setChatValues([])
+        setNext(true)
+      }, 3000))
+    }
+    if (messages.length === 1 && inp === "ЛЮБЛЮ") {
+      setInp("")
+      setChatValues(() => [...messages, { ...chatSecond[messages.length], time: time(), }])
+    }
+  }
 
   return (
     <Container>
       <Content>
-        {pageNumber == "Logo" && < Logo >
+        {pageNumber === "Logo" && < Logo >
           <img src={logo} alt={"Logo"} />
         </Logo>}
-        {pageNumber == "Chat" &&
+        {pageNumber === "Chat" &&
           < Chat >
             <ChatHeader>
               <HeaderImage src={avatar} alt="Avatar" />
               <HeaderText>
                 <HeaderTextName>
-                  Твой Сашка
+                  Твой Сашка &#10084;
                 </HeaderTextName>
                 <HeaderTextStatus>
                   <p style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#0ACF83" }} />
@@ -395,25 +405,7 @@ function App() {
               <ChatSendWrapperInput>
                 <ChatSendInput onChange={(e) => setInp(e.target.value.toUpperCase())} disabled={false} value={inp} />
               </ChatSendWrapperInput>
-              <ChatSendBtn src={send} alt="send" onClick={() => {
-                if (chatValues.length === 2) {
-                  new Promise((resolve) => {
-                    setChatValues(() => [...chatValues, { ...chatFirst[chatValues.length], time: time(), }])
-                    setTimer(() => {
-                      setPageNumber('Logo')
-                      resolve()
-                    }, 2000);
-                  }).then(() => setTimer(() => {
-                    setPageNumber("Game")
-                    setChatValues([])
-                    setNext(true)
-                  }, 3000))
-                }
-                if (chatValues.length === 1 && inp === "ЛЮБЛЮ") {
-                  setInp("")
-                  setChatValues(() => [...chatValues, { ...chatSecond[chatValues.length], time: time(), }])
-                }
-              }} />
+              <ChatSendBtn src={send} alt="send" onClick={() => handleClick(chatValues)} />
             </ChatSend>
           </Chat>}
         {pageNumber === "Game" &&
@@ -427,7 +419,7 @@ function App() {
             <Clue>"Подставь буквы чтобы узнать где лежит кодовое слово, необходимое для получения карты сокровищ"</Clue>
             <AnswerWrapper>
               {AnswerLeters.map((elem, i) => <AnswerLiter onChange={(e) => setValue([...value].map((v, j) => i
-                == j ? e.target.value.toUpperCase() : v.toUpperCase()))} color={elem.color} maxLength={1} value={value[i]} disabled={elem.leter == "" ? false : true} />)}
+                === j ? e.target.value.toUpperCase() : v.toUpperCase()))} color={elem.color} maxLength={1} value={value[i]} disabled={elem.leter === "" ? false : true} />)}
             </AnswerWrapper>
             <Decore src={A} top="-10%" left="75%" scaleA={1} scaleB={1} />
             <Decore src={B} top="104%" left="63%" scaleA={-0.6} scaleB={0.6} />
