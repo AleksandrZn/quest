@@ -107,7 +107,7 @@ display: flex;
 align-items: center;
 `
 const QuestCard = styled.div`
-position: relative;
+//position: relative;
 height: 70%;
 width: 96%;
 margin: 2% auto;
@@ -154,6 +154,8 @@ padding-top:30px;
 display: flex;
 `
 const BagItem = styled.div`
+touch-action: none;
+${props => props.start && `position: absolute; z-index:1000; left:${props.position.x}px; top:${props.position.y}px`};
 width: 32px;
 height: 31px;
 text-align: center;
@@ -165,22 +167,14 @@ line-height: 0%;
 font-family: sans-serif;
 font-weight: bold;
 `
-const BageComponent = (bag, A, B) => {
-  return <Bag bag={bag}>
-    <BagItemWrapper>
-      <BagItem>{A}</BagItem>
-      <BagItem>{B}</BagItem>
-    </BagItemWrapper>
-  </Bag>
-}
+
 const AnswerWrapper = styled.div`
 display: flex;
 justify-content:space-evenly;
 width: 96%;
 margin: 2% auto;
 `
-const AnswerLiter = styled.input`
-border: none;
+const AnswerLiter = styled.div`
 width: 32px;
 height: 32px;
 text-align: center;
@@ -194,9 +188,6 @@ font-weight: bold;
 border-radius:5px;
 background-color:${props => props.color} ;
 color: white;
-&:focus{
-  outline: none !important;
-}
 `
 
 const Clue = styled.div`
@@ -264,7 +255,7 @@ const MessageTime = styled.div`
 display: flex;
 font-family: sans - serif;
 font-size: 12px;
-line-height: 150 %;
+line-height: 150%;
 color: rgba(244, 109, 154, 0.7);
 ${({ $typemessage }) => $typemessage === TYPES_MESSAGE.SCRIPT ? "padding-right: 16px" : "padding-left: 16px"};
 justify-content:${({ $typemessage }) => $typemessage === TYPES_MESSAGE.SCRIPT ? "flex-end" : "flex-start"};
@@ -284,15 +275,72 @@ const MessageComponent = ({ elem }) => {
 }
 
 function App() {
+  const [position, setPosition] = useState({ x: null, y: null })
+  const [dragStart, setDragStart] = useState(false)
+  const [current, setCurrent] = useState(null)
+
+  useEffect(() => {
+    if (dragStart) {
+
+    }
+  }, [position])
+
+  const BageComponent = (bag, values) => {
+    return <Bag bag={bag}>
+      <BagItemWrapper>
+        {values.map((value) => <div style={{
+          width: "32px",
+          height: "31px",
+        }}> <BagItem id={value.id} start={value.id === current?.id && dragStart} position={position} onPointerDown={(e) => { setCurrent({ leter: value.leter, id: value.id }); setDragStart(true); setPosition({ x: e.pageX - e.target.offsetWidth / 2, y: e.pageY - e.target.offsetHeight / 2 }) }} onPointerMove={(e) => { setPosition({ x: e.pageX - e.target.offsetWidth / 2, y: e.pageY - e.target.offsetHeight / 2 }) }} onPointerUp={() => setDragStart(false)} >{visible.indexOf(value.id) === -1 ? value.leter : ""}</BagItem>
+        </div>)}
+      </BagItemWrapper>
+    </Bag >
+  }
+
+
   const [value, setValue] = useState(["", "Р", "", "Н", "", "Е", ""])
   const [next, setNext] = useState(false)
   const [pageNumber, setPageNumber] = useState("Logo")
   const [animation, setAnimation] = useState(true)
   const [inp, setInp] = useState("")
   const [chatValues, setChatValues] = useState([])
+  const [visible, setVisible] = useState([])
 
-  const bagLiters = [{ bag: blue, A: "И", B: "У" }, { bag: brown, A: "П", B: "С" }, { bag: green, A: "Н", B: "Р" }, { bag: yellow, A: "Е", B: "Т" }]
-  const AnswerLeters = [{ leter: "", color: "#A07D89" }, { leter: "Р", color: "#6EF57B" }, { leter: "", color: "#6E92F5" }, { leter: "Н", color: "#6EF57B" }, { leter: "", color: "#F5CF6E" }, { leter: "Е", color: "#F5CF6E" }, { leter: "", color: "#6EF57B" }]
+  const bagLiters = [{
+    bag: blue, A: {
+      leter: "И",
+      id: 1
+    },
+    B: {
+      leter: "У",
+      id: 2
+    },
+  }, {
+    bag: brown, A: {
+      leter: "П",
+      id: 3
+    }, B: {
+      leter: "С",
+      id: 4
+    },
+  }, {
+    bag: green, A: {
+      leter: "Н",
+      id: 5
+    }, B: {
+      leter: "Р",
+      id: 6
+    },
+  }, {
+    bag: yellow, A: {
+      leter: "Е",
+      id: 7
+    }, B: {
+      leter: "Т",
+      id: 8
+    }
+  }]
+  const AnswerLeters = [{ leter: "", color: "#A07D89", id: 3 }, { leter: "Р", color: "#6EF57B" }, { leter: "", color: "#6E92F5", id: 1 }, { leter: "Н", color: "#6EF57B" }, { leter: "", color: "#F5CF6E", id: 8 }, { leter: "Е", color: "#F5CF6E" }, { leter: "", color: "#6EF57B", id: 6 }]
   const ResultAnswerLeters = ["П", "Р", "И", "Н", "Т", "Е", "Р"]
   const load = " \"Твой Сашка\" печатает сообщение..."
   const chatFirst = [
@@ -379,7 +427,7 @@ function App() {
         {pageNumber === "Logo" && < Logo >
           <img src={logo} alt={"Logo"} />
         </Logo>}
-        {pageNumber === "Chat" &&
+        {pageNumber === "Game" &&
           < Chat >
             <ChatHeader>
               <HeaderImage src={avatar} alt="Avatar" />
@@ -408,18 +456,17 @@ function App() {
               <ChatSendBtn src={send} alt="send" onClick={() => handleClick(chatValues)} />
             </ChatSend>
           </Chat>}
-        {pageNumber === "Game" &&
+        {pageNumber === "Chat" &&
           <QuestCard>
             <CardText>
               "В женской сумочке, как известно, сложно что-либо найти. Вот и сейчас в каждой из сумочек затерялось по две буквы. Зная какие две буквы лежат в каждой сумке, постарайся расшифровать слово. Некоторые буквы уже заняли свои места."
             </CardText>
             <BagsCard>
-              {bagLiters.map((elem) => BageComponent(elem.bag, elem.A, elem.B))}
+              {bagLiters.map((elem) => BageComponent(elem.bag, [elem.A, elem.B]))}
             </BagsCard>
             <Clue>"Подставь буквы чтобы узнать где лежит кодовое слово, необходимое для получения карты сокровищ"</Clue>
             <AnswerWrapper>
-              {AnswerLeters.map((elem, i) => <AnswerLiter onChange={(e) => setValue([...value].map((v, j) => i
-                === j ? e.target.value.toUpperCase() : v.toUpperCase()))} color={elem.color} maxLength={1} value={value[i]} disabled={elem.leter === "" ? false : true} />)}
+              {AnswerLeters.map((elem, i) => <AnswerLiter color={elem.color} onPointerEnter={() => { if (current.id === elem.id) setValue((prevState) => { setVisible((prevState) => [...prevState, elem.id]); let res = [...prevState]; res.splice(i, 1, current.leter); return res; }) }} >{value[i]}</AnswerLiter>)}
             </AnswerWrapper>
             <Decore src={A} top="-10%" left="75%" scaleA={1} scaleB={1} />
             <Decore src={B} top="104%" left="63%" scaleA={-0.6} scaleB={0.6} />
