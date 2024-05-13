@@ -2,14 +2,11 @@ import styled from "styled-components";
 import logo from './image/logo.svg'
 import avatar from './image/Avatar.svg'
 import send from './image/Send.svg'
-import blue from './image/Blue.png'
-import brown from './image/Brown.png'
-import green from './image/Green.png'
-import yellow from './image/Yellow.png'
 import B from './image/BlackB.svg'
 import A from './image/WhiteB.svg'
 import Map from "./image/Map.png"
 import { useEffect, useState } from "react";
+import { useDragAndDrop } from "./hooks/useDragAndDrop";
 
 const Container = styled.div`
   background-color: #FEF6FF;
@@ -107,7 +104,7 @@ display: flex;
 align-items: center;
 `
 const QuestCard = styled.div`
-//position: relative;
+position: relative;
 height: 70%;
 width: 96%;
 margin: 2% auto;
@@ -175,6 +172,7 @@ width: 96%;
 margin: 2% auto;
 `
 const AnswerLiter = styled.div`
+touch-action: none;
 width: 32px;
 height: 32px;
 text-align: center;
@@ -278,12 +276,8 @@ function App() {
   const [position, setPosition] = useState({ x: null, y: null })
   const [dragStart, setDragStart] = useState(false)
   const [current, setCurrent] = useState(null)
-
-  useEffect(() => {
-    if (dragStart) {
-
-    }
-  }, [position])
+  const [resElem, setResElem] = useState(null)
+  const drag = useDragAndDrop()
 
   const BageComponent = (bag, values) => {
     return <Bag bag={bag}>
@@ -291,7 +285,7 @@ function App() {
         {values.map((value) => <div style={{
           width: "32px",
           height: "31px",
-        }}> <BagItem id={value.id} start={value.id === current?.id && dragStart} position={position} onPointerDown={(e) => { setCurrent({ leter: value.leter, id: value.id }); setDragStart(true); setPosition({ x: e.pageX - e.target.offsetWidth / 2, y: e.pageY - e.target.offsetHeight / 2 }) }} onPointerMove={(e) => { setPosition({ x: e.pageX - e.target.offsetWidth / 2, y: e.pageY - e.target.offsetHeight / 2 }) }} onPointerUp={() => setDragStart(false)} >{visible.indexOf(value.id) === -1 ? value.leter : ""}</BagItem>
+        }}> <BagItem >{value.leter}</BagItem>
         </div>)}
       </BagItemWrapper>
     </Bag >
@@ -306,40 +300,7 @@ function App() {
   const [chatValues, setChatValues] = useState([])
   const [visible, setVisible] = useState([])
 
-  const bagLiters = [{
-    bag: blue, A: {
-      leter: "И",
-      id: 1
-    },
-    B: {
-      leter: "У",
-      id: 2
-    },
-  }, {
-    bag: brown, A: {
-      leter: "П",
-      id: 3
-    }, B: {
-      leter: "С",
-      id: 4
-    },
-  }, {
-    bag: green, A: {
-      leter: "Н",
-      id: 5
-    }, B: {
-      leter: "Р",
-      id: 6
-    },
-  }, {
-    bag: yellow, A: {
-      leter: "Е",
-      id: 7
-    }, B: {
-      leter: "Т",
-      id: 8
-    }
-  }]
+
   const AnswerLeters = [{ leter: "", color: "#A07D89", id: 3 }, { leter: "Р", color: "#6EF57B" }, { leter: "", color: "#6E92F5", id: 1 }, { leter: "Н", color: "#6EF57B" }, { leter: "", color: "#F5CF6E", id: 8 }, { leter: "Е", color: "#F5CF6E" }, { leter: "", color: "#6EF57B", id: 6 }]
   const ResultAnswerLeters = ["П", "Р", "И", "Н", "Т", "Е", "Р"]
   const load = " \"Твой Сашка\" печатает сообщение..."
@@ -457,16 +418,16 @@ function App() {
             </ChatSend>
           </Chat>}
         {pageNumber === "Chat" &&
-          <QuestCard>
+          <QuestCard onPointerOver={(e) => console.log(111)}>
             <CardText>
               "В женской сумочке, как известно, сложно что-либо найти. Вот и сейчас в каждой из сумочек затерялось по две буквы. Зная какие две буквы лежат в каждой сумке, постарайся расшифровать слово. Некоторые буквы уже заняли свои места."
             </CardText>
             <BagsCard>
-              {bagLiters.map((elem) => BageComponent(elem.bag, [elem.A, elem.B]))}
+              {drag[0].map((elem) => BageComponent(elem.backgroundColor, [elem.A, elem.B]))}
             </BagsCard>
             <Clue>"Подставь буквы чтобы узнать где лежит кодовое слово, необходимое для получения карты сокровищ"</Clue>
             <AnswerWrapper>
-              {AnswerLeters.map((elem, i) => <AnswerLiter color={elem.color} onPointerEnter={() => { if (current.id === elem.id) setValue((prevState) => { setVisible((prevState) => [...prevState, elem.id]); let res = [...prevState]; res.splice(i, 1, current.leter); return res; }) }} >{value[i]}</AnswerLiter>)}
+              {AnswerLeters.map((elem, i) => <AnswerLiter id={current?.id === elem?.id && elem.id + 10} color={elem.color} >{value[i]}</AnswerLiter>)}
             </AnswerWrapper>
             <Decore src={A} top="-10%" left="75%" scaleA={1} scaleB={1} />
             <Decore src={B} top="104%" left="63%" scaleA={-0.6} scaleB={0.6} />
