@@ -6,12 +6,13 @@ import B from './image/BlackB.svg'
 import A from './image/WhiteB.svg'
 import Map from "./image/Map.png"
 import { useEffect, useState } from "react";
-import { useDragAndDrop } from "./hooks/useDragAndDrop";
+import BageComponent from "./components/BageComponent";
 
 const Container = styled.div`
+  position: relative;
   background-color: #FEF6FF;
   width: 100vw;
-  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
   display: flex;
   justify-content: center;
 `;
@@ -104,7 +105,7 @@ display: flex;
 align-items: center;
 `
 const QuestCard = styled.div`
-position: relative;
+user-select: none;
 height: 70%;
 width: 96%;
 margin: 2% auto;
@@ -114,6 +115,7 @@ align-self: center;
 align-items: center;
 background-color: #F46D9A;
 flex-direction: column;
+
 `
 const CardText = styled.div`
 width: 90%;
@@ -126,44 +128,6 @@ line-height: 100%;
 font-size: 17px;
 font-weight: bold;
 `
-const BagsCard = styled.div`
-width: 90%;
-align-items: center;
-margin:15% 0 5% 0;
-font-family: sans-serif;
-text-align:center;
-color:#FEF6FF;
-line-height: 130%;
-font-size: 16px;
-display: flex;
-justify-content:space-evenly;
-`
-const Bag = styled.div`
-width: 64px;
-height: 62px;
-background-image: url(${props => props.bag});
-
-`
-const BagItemWrapper = styled.div`
-width: 64px;
-height: 32px;
-padding-top:30px;
-display: flex;
-`
-const BagItem = styled.div`
-touch-action: none;
-${props => props.start && `position: absolute; z-index:1000; left:${props.position.x}px; top:${props.position.y}px`};
-width: 32px;
-height: 31px;
-text-align: center;
-flex-direction: column;
-display: flex;
-justify-content: center;
-align-items: center;
-line-height: 0%;
-font-family: sans-serif;
-font-weight: bold;
-`
 
 const AnswerWrapper = styled.div`
 display: flex;
@@ -171,7 +135,7 @@ justify-content:space-evenly;
 width: 96%;
 margin: 2% auto;
 `
-const AnswerLiter = styled.div`
+const Liter = styled.div`
 touch-action: none;
 width: 32px;
 height: 32px;
@@ -185,7 +149,8 @@ font-family: sans-serif;
 font-weight: bold;
 border-radius:5px;
 background-color:${props => props.color} ;
-color: white;
+${props => !props.correctly && "box-shadow: inset 0px 0px 8px 2px rgba(0, 0, 0, 0.5);"} ;
+color:white;
 `
 
 const Clue = styled.div`
@@ -273,35 +238,55 @@ const MessageComponent = ({ elem }) => {
 }
 
 function App() {
-  const [position, setPosition] = useState({ x: null, y: null })
-  const [dragStart, setDragStart] = useState(false)
-  const [current, setCurrent] = useState(null)
-  const [resElem, setResElem] = useState(null)
-  const drag = useDragAndDrop()
-
-  const BageComponent = (bag, values) => {
-    return <Bag bag={bag}>
-      <BagItemWrapper>
-        {values.map((value) => <div style={{
-          width: "32px",
-          height: "31px",
-        }}> <BagItem >{value.leter}</BagItem>
-        </div>)}
-      </BagItemWrapper>
-    </Bag >
-  }
-
-
-  const [value, setValue] = useState(["", "Р", "", "Н", "", "Е", ""])
   const [next, setNext] = useState(false)
   const [pageNumber, setPageNumber] = useState("Logo")
   const [animation, setAnimation] = useState(true)
   const [inp, setInp] = useState("")
   const [chatValues, setChatValues] = useState([])
-  const [visible, setVisible] = useState([])
+
+  const [resLiters, setResLiters] = useState([
+    {
+      color: "#A07D89",
+      liter: "",
+      id: "P" + "+0",
+      correctly: false,
+    }, {
+      color: "#6EF57B",
+      liter: "Р",
+      id: "R" + "+1",
+      correctly: true,
+    }, {
+      color: "#6E92F5",
+      liter: "",
+      id: "I" + "+2",
+      correctly: false,
+
+    },
+    {
+      color: "#6EF57B",
+      liter: "Н",
+      id: "N" + "+3",
+      correctly: true,
+    }, {
+      color: "#F5CF6E",
+      liter: "",
+      id: "T" + "+4",
+      correctly: false,
+    },
+    {
+      color: "#F5CF6E",
+      liter: "Е",
+      id: "E" + "+5",
+      correctly: true,
+    }, {
+      color: "#6EF57B",
+      liter: "",
+      id: "R" + "+6",
+      correctly: false,
+    }
+  ])
 
 
-  const AnswerLeters = [{ leter: "", color: "#A07D89", id: 3 }, { leter: "Р", color: "#6EF57B" }, { leter: "", color: "#6E92F5", id: 1 }, { leter: "Н", color: "#6EF57B" }, { leter: "", color: "#F5CF6E", id: 8 }, { leter: "Е", color: "#F5CF6E" }, { leter: "", color: "#6EF57B", id: 6 }]
   const ResultAnswerLeters = ["П", "Р", "И", "Н", "Т", "Е", "Р"]
   const load = " \"Твой Сашка\" печатает сообщение..."
   const chatFirst = [
@@ -342,6 +327,8 @@ function App() {
 
   useEffect(() => {
     setTimer(() => setPageNumber("Chat"), 1000)
+    let vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
   }, []);
 
   useEffect(() => {
@@ -355,11 +342,11 @@ function App() {
   }, [pageNumber, chatValues])
 
   useEffect(() => {
-    if (value.toString() === ResultAnswerLeters.toString()) {
-      setPageNumber('Logo')
+    if (resLiters.map((elem) => elem.liter).toString() === ResultAnswerLeters.toString()) {
+      setTimer(() => { setPageNumber('Logo') }, 1000)
       setTimer(() => { setPageNumber('Chat') }, 3000)
     }
-  }, [value])
+  }, [resLiters])
 
 
   const handleClick = (messages) => {
@@ -368,6 +355,7 @@ function App() {
         setChatValues(() => [...messages, { ...chatFirst[messages.length], time: time(), }])
         setTimer(() => {
           setPageNumber('Logo')
+          setInp("")
           resolve()
         }, 2000);
       }).then(() => setTimer(() => {
@@ -388,7 +376,7 @@ function App() {
         {pageNumber === "Logo" && < Logo >
           <img src={logo} alt={"Logo"} />
         </Logo>}
-        {pageNumber === "Game" &&
+        {pageNumber === "Chat" &&
           < Chat >
             <ChatHeader>
               <HeaderImage src={avatar} alt="Avatar" />
@@ -417,22 +405,32 @@ function App() {
               <ChatSendBtn src={send} alt="send" onClick={() => handleClick(chatValues)} />
             </ChatSend>
           </Chat>}
-        {pageNumber === "Chat" &&
-          <QuestCard onPointerOver={(e) => console.log(111)}>
+        {pageNumber === "Game" &&
+          <QuestCard>
             <CardText>
               "В женской сумочке, как известно, сложно что-либо найти. Вот и сейчас в каждой из сумочек затерялось по две буквы. Зная какие две буквы лежат в каждой сумке, постарайся расшифровать слово. Некоторые буквы уже заняли свои места."
             </CardText>
-            <BagsCard>
-              {drag[0].map((elem) => BageComponent(elem.backgroundColor, [elem.A, elem.B]))}
-            </BagsCard>
+            <BageComponent setResLiters={setResLiters} />
             <Clue>"Подставь буквы чтобы узнать где лежит кодовое слово, необходимое для получения карты сокровищ"</Clue>
             <AnswerWrapper>
-              {AnswerLeters.map((elem, i) => <AnswerLiter id={current?.id === elem?.id && elem.id + 10} color={elem.color} >{value[i]}</AnswerLiter>)}
+              {resLiters.map((elem) => <Liter correctly={elem.correctly} id={elem.id} color={elem.color}>{elem.liter}</Liter>)}
             </AnswerWrapper>
-            <Decore src={A} top="-10%" left="75%" scaleA={1} scaleB={1} />
-            <Decore src={B} top="104%" left="63%" scaleA={-0.6} scaleB={0.6} />
-            <Decore src={B} top="-18%" left="0%" scaleA={0.5} scaleB={0.5} />
-            <Decore src={B} top="96%" left="0%" scaleA={1} scaleB={1} />
+            <div style={{
+              maxWidth: "500px",
+              height: "70%",
+              width: "96%",
+              margin: "2% auto",
+              display: "flex",
+              alignSelf: "center",
+              alignItems: "center",
+              position: "absolute",
+              pointerEvents: "none",
+            }}>
+              <Decore src={A} top="-10%" left="75%" scaleA={1} scaleB={1} />
+              <Decore src={B} top="104%" left="63%" scaleA={-0.6} scaleB={0.6} />
+              <Decore src={B} top="-18%" left="0%" scaleA={0.5} scaleB={0.5} />
+              <Decore src={B} top="96%" left="0%" scaleA={1} scaleB={1} />
+            </div>
           </QuestCard>}
       </Content>
     </Container >
